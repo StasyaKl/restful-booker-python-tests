@@ -1,3 +1,12 @@
-# restful-booker-python-tests
+# Restful Booker Python Tests
 
-Фреймворк автоматизации REST API и UI гостиничного сервиса на Python. Используются pytest, requests, Playwright, JSON Schema, Allure, логирование, разделение на API-клиенты и модели, тестовые данные, параллельный запуск и CI/CD.
+Automated tests for the Restful Booker API and UI.
+
+## Planned stack
+
+- Python
+- pytest
+- requests
+- Playwright
+- Allure
+- GitHub Actions
