@@ -1,4 +1,5 @@
 import requests
+import pytest
 
 BASE_URL = "https://restful-booker.herokuapp.com"
 BOOKING_URL = f"{BASE_URL}/booking"
@@ -63,8 +64,9 @@ def test_get_booking_by_id():
     assert isinstance(booking["bookingdates"]["checkout"], str)
 
 
-def test_get_nonexistent_booking():
-    response = requests.get(f"{BOOKING_URL}/999999999", timeout=10)
+@pytest.mark.parametrize("booking_id", [0, -1, 999999999, "abc"])
+def test_get_booking_with_invalid_id(booking_id):
+    response = requests.get(f"{BOOKING_URL}/{booking_id}", timeout=10)
 
     assert response.status_code == 404
     assert response.text.strip() == "Not Found"
@@ -102,6 +104,6 @@ def test_create_booking():
     assert response_data["booking"] == payload
 
     response_get = requests.get(f"{BOOKING_URL}/{response_data["bookingid"]}", timeout=10)
-    assert response_get.status_code == 200 
+    assert response_get.status_code == 200
     data_get = response_get.json()
     assert payload == data_get
