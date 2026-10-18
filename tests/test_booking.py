@@ -68,3 +68,40 @@ def test_get_nonexistent_booking():
 
     assert response.status_code == 404
     assert response.text.strip() == "Not Found"
+
+
+def test_create_booking():
+    payload = {
+        "firstname": "Anastasia",
+        "lastname": "Tester",
+        "totalprice": 150,
+        "depositpaid": True,
+        "bookingdates": {
+            "checkin": "2026-11-01",
+            "checkout": "2026-11-10",
+        },
+        "additionalneeds": "Breakfast",
+    }
+
+    response = requests.post(
+        BOOKING_URL,
+        json=payload,
+        timeout=10,
+    )
+
+    assert response.status_code == 200
+    assert "application/json" in response.headers["Content-Type"]
+
+    response_data = response.json()
+    assert isinstance(response_data, dict)
+    assert "bookingid" in response_data
+    assert response_data["bookingid"] > 0
+    assert isinstance(response_data["bookingid"], int)
+    assert "booking" in response_data
+    assert isinstance(response_data["booking"], dict)
+    assert response_data["booking"] == payload
+
+    response_get = requests.get(f"{BOOKING_URL}/{response_data["bookingid"]}", timeout=10)
+    assert response_get.status_code == 200 
+    data_get = response_get.json()
+    assert payload == data_get
