@@ -109,24 +109,7 @@ def test_create_booking():
     assert post_payload == data_get
 
 
-def test_update_booking(auth_token):
-    response_post = requests.post(
-        BOOKING_URL,
-        json=post_payload,
-        timeout=10,
-    )
-
-    assert response_post.status_code == 200
-
-    data = response_post.json()
-
-    assert "bookingid" in data
-
-    booking_id = data["bookingid"]
-
-    assert isinstance(booking_id, int)
-    assert booking_id > 0
-
+def test_update_booking(auth_token, created_booking):
     updated_payload = {
         "firstname": "Anna",
         "lastname": "Automation",
@@ -140,7 +123,7 @@ def test_update_booking(auth_token):
     }
 
     response_put = requests.put(
-        f"{BOOKING_URL}/{booking_id}",
+        f"{BOOKING_URL}/{created_booking["booking_id"]}",
         headers={"Cookie": f"token={auth_token}"},
         json=updated_payload,
         timeout=10,
@@ -153,7 +136,7 @@ def test_update_booking(auth_token):
     assert isinstance(data_put, dict)
     assert data_put == updated_payload
 
-    response_get = requests.get(f"{BOOKING_URL}/{booking_id}", timeout=10)
+    response_get = requests.get(f"{BOOKING_URL}/{created_booking["booking_id"]}", timeout=10)
     assert response_get.status_code == 200
 
     data_get = response_get.json()
