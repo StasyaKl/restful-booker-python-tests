@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import requests
 import pytest
 
@@ -141,3 +143,44 @@ def test_update_booking(auth_token, created_booking):
 
     data_get = response_get.json()
     assert data_get == updated_payload
+
+
+def test_partial_update_booking(auth_token, created_booking):
+    booking_id = created_booking["booking_id"]
+    payload = created_booking["payload"]
+    payload_before_patch = deepcopy(payload)
+
+    patch_payload = {
+        "firstname": "Maria",
+        "additionalneeds": "Dinner",
+    }
+
+    expected_payload = deepcopy(payload)
+    expected_payload.update(patch_payload)
+
+    response_patch = requests.patch(
+        f"{BOOKING_URL}/{booking_id}",
+        headers={"Cookie": f"token={auth_token}"},
+        json=patch_payload,
+        timeout=10,
+    )
+
+    assert response_patch.status_code == 200
+    assert "application/json" in response_patch.headers["Content-Type"]
+
+    data_patch = response_patch.json()
+    assert isinstance(data_patch, dict)
+
+    assert data_patch == expected_payload
+
+    response_get = requests.get(
+        f"{BOOKING_URL}/{booking_id}",
+        timeout=10,
+    )
+
+    assert response_get.status_code == 200
+
+    data_get = response_get.json()
+
+    assert data_get == expected_payload
+    assert payload == payload_before_patch
